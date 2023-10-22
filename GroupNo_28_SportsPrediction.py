@@ -9,15 +9,16 @@ Original file is located at
 
 
 import pandas as pd
-from google.colab import drive
-drive.mount('/content/drive')
+import sklearn
+from sklearn.model_selection import train_test_split
 
 
+print(sklearn.__version__)
 
 
 #DATA COLLECTION AND READING
 
-fifa_data=pd.read_csv('/content/drive/My Drive/Colab Notebooks/players_21.csv')
+fifa_data=pd.read_csv('/Users/philipmburu/Desktop/players_21.csv')
 fifa_data
 
 fifa_data.describe()
@@ -170,7 +171,7 @@ from sklearn.preprocessing import StandardScaler
 x_values = StandardScaler().fit_transform(scalable_data)
 
 # You can create a DataFrame from the scaled values if needed
-# x_values = pd.DataFrame(x_values, columns=x_values.columns)
+x_values = pd.DataFrame(x_values, columns=x_values.columns)
 
 # Check the information of x_values
 scaled = pd.DataFrame(x_values, columns=scalable_data.columns)
@@ -284,3 +285,10 @@ print("Best Random Forest Model MAE:", mae_best)
 
 "DONE!"
 
+
+
+# pickling the model 
+import pickle 
+pickle_out = open("classifier.pkl", "wb") 
+pickle.dump(xgb_model, pickle_out) 
+pickle_out.close()
