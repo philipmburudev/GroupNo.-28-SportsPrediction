@@ -10,7 +10,7 @@ pickle_in = open('classifier.pkl', 'rb')
 classifier = pickle.load(pickle_in) 
 
 def welcome(): 
-	return 'welcome all'
+	return 'Welcome to the best AI for predicting who the best player is'
 
 # defining the function which will make the prediction using 
 # the data which the user inputs 
@@ -25,13 +25,13 @@ def prediction(sepal_length, sepal_width, petal_length, petal_width):
 # this is the main function in which we define our webpage 
 def main(): 
 	# giving the webpage a title 
-	st.title("Foot Ball Player Prediction") 
+	st.title("FootBall Player Prediction") 
 	
 	# here we define some of the front end elements of the web page like 
 	# the font and background color, the padding and the text to be displayed 
 	html_temp = """ 
-	<div style ="background-color:yellow;padding:13px"> 
-	<h1 style ="color:black;text-align:center;">Streamlit Best Player ML App </h1> 
+	<div style ="background-color:darkblue;padding:13px"> 
+	<h1 style ="color:gold;text-align:center;">Streamlit Best Player ML App </h1> 
 	</div> 
 	"""
 	
@@ -41,12 +41,13 @@ def main():
 	
 	# the following lines create text boxes in which the user can enter 
 	# the data required to make the prediction 
-	sepal_length = st.number_input("Player age", min_value=0, max_value=100, value=25)
-	sepal_width = st.number_input("Player dribbing", min_value=0, max_value=100, value=25)
-	petal_length = st.number_input("Player salary", min_value=0, max_value=100, value=25)
-	petal_width = st.number_input("Player shooting", min_value=0, max_value=100, value=25)	
+	sepal_length = st.number_input("Enter player passing score", min_value=0, max_value=100, value=25)
+	sepal_width = st.number_input("Enter player dribbling score", min_value=0, max_value=100, value=25)
+	petal_length = st.number_input("Enter player shooting score", min_value=0, max_value=100, value=25)
+	petal_width = st.number_input("Enter player potential score", min_value=0, max_value=100, value=25)	
 	result ="" 
 	
+
 	# the below line ensures that when the button called 'Predict' is clicked, 
 	# the prediction function defined above is called to make the prediction 
 	# and store it in the variable result 

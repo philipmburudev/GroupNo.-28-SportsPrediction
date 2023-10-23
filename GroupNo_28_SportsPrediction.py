@@ -7,39 +7,42 @@ Original file is located at
     https://colab.research.google.com/drive/1U655A3z-3uwtkSIvb844Yr4cmF0Aihzl
 """
 
-
+!pip install --upgrade scikit-learn
 import pandas as pd
-import sklearn
-from sklearn.model_selection import train_test_split
+from google.colab import drive
+drive.mount('/content/drive')
 
+#LOAD DATA
 
-print(sklearn.__version__)
-
-
-#DATA COLLECTION AND READING
-
-fifa_data=pd.read_csv('/Users/philipmburu/Desktop/players_21.csv')
+fifa_data=pd.read_csv('/content/drive/My Drive/Colab Notebooks/players_21.csv')
 fifa_data
 
 fifa_data.describe()
 
 
 
-
-#PROCESSING THE DATA
-#1. Identify columns that affect player rating and that don't
+#DROP COLUMNS WITH MORE THAN 30% NULLS
 
 
-#DROPPING COLUMNS THAT DON'T AFFECT PLAYER RATING
+# Calculate the percentage of null values in each column
+null_percentage = (fifa_data.isnull().sum() / len(fifa_data)) * 100
 
-#Columns that don't affect player rating
+threshold = 30
+
+# Filter and drop columns with more than 30% null values
+columns_to_drop = null_percentage[null_percentage > threshold].index
+fifa_data.drop(columns =columns_to_drop, inplace=True)
+
+#THIS IS HOW NEW DATA LOOKS LIKE WITH 30% NULLS DROPPED
+fifa_data
+
+#DROPPING COLUMNS THAT DON'T AFFECT PLAYER RATING EG. URLS
+
 unwanted_player_data = ['sofifa_id', 'player_url', 'short_name', 'long_name', 'player_face_url', 'club_logo_url',
-                    'club_flag_url', 'nation_logo_url', 'nation_flag_url' ]
-
-
+                    'club_flag_url' ]
+new_fifa_data= fifa_data.drop(unwanted_player_data, axis = 1)
 
 #NEW DATA AFTER REMOVING THE UNWANTED COLUMNS
-new_fifa_data= fifa_data.drop(unwanted_player_data, axis = 1)
 new_fifa_data
 
 #IDENTIFY CATEGORICAL VALUES AND ENCODE THEM
@@ -62,43 +65,38 @@ categorical_values = new_fifa_data['body_type'].unique()
 for value in categorical_values:
     print(value)
 
-
-
-#REPRESENTATION OF CATEGORICAL DATA IN NUMERICAL FORM
+#CONVERT CATEGORICAL VALUES INTO NUMERICAL FORM
 #The dummies
 fifa_categorical_data = pd.get_dummies(new_fifa_data, columns=['preferred_foot', 'body_type', 'work_rate'])
 fifa_categorical_data
 
-
+#REMOVE THE CATEGORIAL DATA FROM THE WANTED PLAYER TABLE
 
 #COLUMNS THAT AFFECT PLAYER PERFORMANCE
 wanted_player_data = ['overall','potential', 'passing', 'dribbling', 'defending', 'shooting', 'international_reputation', 'preferred_foot', 'body_type', 'work_rate']
 fifa_data[wanted_player_data]
 
-
-
-#REMOVE THE CATEGORIAL DATA FROM THE WANTED PLAYER TABLE
-
-# Assuming you have a DataFrame 'fifa_data' and a list of categorical columns to be removed 'categorical_to_be_removed'
+# Define categorical columns to be removed
 categorical_to_be_removed = ['preferred_foot', 'body_type', 'work_rate']
-
 
 # Create a new DataFrame with categorical columns removed
 wanted_player_data_categorical_removed = fifa_data[wanted_player_data].drop(categorical_to_be_removed, axis=1)
 wanted_player_data_categorical_removed
 
-
+#FEATURE ENGINEERING
 
 #2. MAXIMUM CORRELATION WITH THE DEPENDENT VARIABLE
 correlation_matrix21 = fifa_categorical_data.corr()
 correlation_matrix21
 
-# Select the dependent variables
-dependent_variables = ['passing', 'dribbling', 'defending', 'shooting', 'international_reputation', 'preferred_foot', 'body_type', 'work_rate']
+#BASED ON THE CORRELATION, WE PICK COLUMNS THAT AFFECT THE DATA  - INDEPENDENT VARIABLES
 
+
+# Select the independent variables
+independent_variables = ['passing', 'dribbling', 'defending', 'shooting', 'international_reputation', 'preferred_foot', 'body_type', 'work_rate']
 
 # Calculate the correlation matrix
-corr_matrix = fifa_data[dependent_variables].corr()
+corr_matrix = fifa_data[independent_variables].corr()
 
 # Find the maximum correlation coefficient
 max_correlation = corr_matrix.max()
@@ -109,8 +107,6 @@ max_correlation_pair = corr_matrix.idxmax()
 # Print the results
 print('Maximum correlation coefficienT:', max_correlation)
 print('The pair of dependent variables with the maximum correlation is:', max_correlation_pair)
-
-
 
 #3. CREATE AND TRAIN A SUITABLE MACHINE LEARNING MODEL WITH CROSS-VALIDATION THAT CAN PREDICT A PLAYER'S RATING.
 
@@ -128,8 +124,6 @@ fifa_wanted_player_data.fillna(method='ffill',inplace=True)
 fifa_wanted_player_data.fillna(method='bfill',inplace =True)
 
 fifa_wanted_player_data
-
-
 
 #RETRIEVE WANTED PLAYER DATA INCLUDING THE CATEGORICAL VARIABLES WHICH HAVE BEEN ENCODED
 
@@ -151,15 +145,11 @@ fifa_wanted_player_data4 = pd.concat([wanted_player_data_categorical_removed , f
 #Print the DataFrame
 fifa_wanted_player_data4
 
-
-
 # Import the necessary libraries
 from sklearn.preprocessing import StandardScaler
 
 non_hot_encoded_columns = ['potential','passing','defending','shooting','international_reputation', 'dribbling']
 scalable_data = fifa_wanted_player_data4[non_hot_encoded_columns]
-
-
 
 #OBTAINING Y AND X VALUES
 
@@ -171,7 +161,7 @@ from sklearn.preprocessing import StandardScaler
 x_values = StandardScaler().fit_transform(scalable_data)
 
 # You can create a DataFrame from the scaled values if needed
-x_values = pd.DataFrame(x_values, columns=x_values.columns)
+# x_values = pd.DataFrame(x_values, columns=x_values.columns)
 
 # Check the information of x_values
 scaled = pd.DataFrame(x_values, columns=scalable_data.columns)
@@ -285,10 +275,9 @@ print("Best Random Forest Model MAE:", mae_best)
 
 "DONE!"
 
-
-
-# pickling the model 
-import pickle 
-pickle_out = open("classifier.pkl", "wb") 
-pickle.dump(xgb_model, pickle_out) 
+# pickling the model
+import pickle
+pickle_out = open("/content/drive/My Drive/Colab Notebooks/classifier.pkl", "wb")
+pickle.dump(xgb_model, pickle_out)
 pickle_out.close()
+
